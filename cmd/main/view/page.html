@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <style>
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .data {
+            overflow: hidden;
+            background-color: white;
+            padding: 40px 30px 30px 30px;
+            border-radius: 10px;
+            border-color: black;
+            width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    {{template "partials/header"}}
+    <div class="center">
+        <div class="data">
+            <h1>{{.Data}}</h1>
+        </div>
+    </div>
+
+    {{template "partials/footer"}}
+</body>
+
+</html>
