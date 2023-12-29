@@ -10,22 +10,53 @@
             align-items: center;
         }
 
-        .data {
+        .id-form {
             overflow: hidden;
             background-color: white;
             padding: 40px 30px 30px 30px;
             border-radius: 10px;
             border-color: black;
             width: 400px;
+
+            >input {
+                display: block;
+                border-radius: 5px;
+                border-color: black;
+                font-size: 16px;
+                background: rgb(218, 218, 218);
+                width: 100%;
+                border: 0;
+                padding: 10px 10px;
+                margin: 15px -10px;
+            }
+
+            >button {
+                cursor: pointer;
+                color: #fff;
+                background-color: #d36666;
+                font-size: 16px;
+                text-transform: uppercase;
+                width: 80px;
+                border: 0;
+                padding: 10px 0;
+                margin-top: 10px;
+                margin-left: -5px;
+                border-radius: 5px;
+            }
         }
     </style>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
     {{template "partials/header"}}
     <div class="center">
-        <div class="data">
-            <h1>{{.Data}}</h1>
+        <div>
+            <form class="id-form" action="/check" id="login-form" method="GET">
+                <input type="text" name="id" placeholder="User ID">
+                {{.Result}}
+                <button>Find</button>
+            </form>
         </div>
     </div>
 

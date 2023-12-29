@@ -45,6 +45,7 @@
             }
         }
     </style>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -54,6 +55,7 @@
             <form class="login" action="/validate" id="login-form" method="GET">
                 <input type="text" name="username" placeholder="Username">
                 <input type="password" name="password" placeholder="Password">
+                <div class="g-recaptcha" data-sitekey="clisent-token"></div>
                 <button>Login</button>
             </form>
         </div>

@@ -1,57 +1,80 @@
 package controller
 
 import (
+	"osl3/pkg/model"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/tekkamanendless/go-recaptcha"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var salt = "whynot"
-var store *session.Store
+var (
+	salt              = "whynot"
+	recaptchaVerifier *recaptcha.Recaptcha
+)
 
 func init() {
-	store = session.New()
+	recaptchaVerifier = recaptcha.New("server-token")
 }
 
 func LogIn(c *fiber.Ctx) error {
-	sess, err := store.Get(c)
+	recaptchaResponse := c.Query("g-recaptcha-response")
+
+	success, err := recaptchaVerifier.Verify(recaptchaResponse)
 	if err != nil {
-		return err
+		return c.Render("login", fiber.Map{})
+	}
+	if !success {
+		return c.Render("login", fiber.Map{})
 	}
 
-	att := sess.Get("attempts")
-	if att == nil {
-		sess.Set("attempts", 0)
-	}
+	username := c.Query("username")
+	password := c.Query("password")
 
-	attempts := sess.Get("attempts").(int)
+	password = password + salt
 
-	if attempts >= 3 {
-		return err
-	}
-
-	userName := c.Query("username")
-	passWord := c.Query("password")
-
-	passWord = passWord + salt
-
-	passHash, err := bcrypt.GenerateFromPassword([]byte(passWord), 14)
-
+	passHash, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
-		return err
+		return c.Render("login", fiber.Map{})
 	}
 
-	sess.Set("attempts", attempts+1)
-
-	if err := sess.Save(); err != nil {
-		return err
+	var user model.User
+	user, err = model.GetUserByUsernamePassword(username, string(passHash))
+	if err != nil {
+		return c.Render("login", fiber.Map{})
 	}
 
 	return c.Render("page", fiber.Map{
-		"Data": userName + ":" + passWord + ":" + string(passHash),
+		"Data": user.ID,
 	})
 }
 
 func LogInPage(c *fiber.Ctx) error {
 	return c.Render("login", fiber.Map{})
+}
+
+func CheckUser(c *fiber.Ctx) error {
+	id := c.Query("id")
+	if id == "" {
+		return c.Render("page", fiber.Map{})
+	}
+
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return c.Render("page", fiber.Map{
+			"Result": err.Error(),
+		})
+	}
+
+	user, err := model.GetUserByID(i)
+	if err != nil {
+		return c.Render("page", fiber.Map{
+			"Result": err.Error(),
+		})
+	}
+
+	return c.Render("page", fiber.Map{
+		"Result": user.Username + " : " + user.Password,
+	})
 }
